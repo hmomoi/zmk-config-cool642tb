@@ -53,6 +53,16 @@
             bindings = <&mkp MB2>;
             key-positions = <38 37>;
         };
+
+        CB_LANG1 {
+            bindings = <&kp LANGUAGE_1>;
+            key-positions = <18 19>;
+        };
+
+        CB_LANG2 {
+            bindings = <&kp LANGUAGE_2>;
+            key-positions = <13 12>;
+        };
     };
 
     macros {
