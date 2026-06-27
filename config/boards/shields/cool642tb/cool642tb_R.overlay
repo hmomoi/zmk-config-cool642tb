@@ -1,4 +1,7 @@
 #include "cool642tb.dtsi"
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <input/processors.dtsi>
+#include <dt-bindings/zmk/input_transform.h>
 
 &default_transform {
     col-offset = <6>;
@@ -53,22 +56,34 @@
 
     trackball: trackball@0 {
         status = "okay";
-        compatible = "pixart,pmw3610";
+        compatible = "pixart,pmw3610-alt";
         reg = <0>;
         spi-max-frequency = <2000000>;
         irq-gpios = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-
-        scroll-layers = <5>;
+        cpi = <600>;
+        evt-type = <INPUT_EV_REL>;
+        x-input-code = <INPUT_REL_X>;
+        y-input-code = <INPUT_REL_Y>;
+        invert-x;
     };
 };
 
-#include <input/processors.dtsi>
-/ {
-   trackball_listener: trackball_listener {
-       compatible = "zmk,input-listener";
-       device = <&trackball>;
-       // トラボ使用後10秒間、レイヤー4が有効
-       input-processors = <&zip_temp_layer 4 10000>;
-   };
+&zip_temp_layer {
+    require-prior-idle-ms = <200>;
 };
 
+/ {
+  trackball_listener {
+    compatible = "zmk,input-listener";
+    device = <&trackball>;
+    input-processors = <&zip_temp_layer 4 700>;
+
+    scroller {
+      layers = <5>;
+      input-processors =
+      <&zip_xy_to_scroll_mapper>,
+      <&zip_scroll_scaler 1 5>,
+      <&zip_scroll_transform (INPUT_TRANSFORM_Y_INVERT)>;
+    };
+  };
+};
